@@ -26,7 +26,13 @@
 ## Copyright (c) 2018-2019 NVIDIA Corporation. All rights reserved.
 
 SET(EMSCRIPTEN_USE_ASSERTIONS "1")
-SET(EMSCRIPTEN_BASE_OPTIONS "--bind -s MODULARIZE=1 -s EXPORT_NAME=PHYSX -s ALLOW_MEMORY_GROWTH=1")
+SET(BUILD_WASM "1")
+# SET(BUILD_CMD "-s EXPORT_NAME=PHYSX --bind -DNDEBUG -O3 -std=c++17 -s NO_EXIT_RUNTIME=1 -s NO_FILESYSTEM=1 -s MODULARIZE=1 -s ALLOW_MEMORY_GROWTH=1 -s ERROR_ON_UNDEFINED_SYMBOLS=0 ")
+if("${BUILD_WASM}" STREQUAL "1")
+	SET(EMSCRIPTEN_BASE_OPTIONS "--bind -O3 -std=c++17 -s MODULARIZE=1 -s EXPORT_NAME=PHYSX -s ALLOW_MEMORY_GROWTH=1 -s WASM=1") # -s TOTAL_MEMORY=33554432 -s BINARYEN_IGNORE_IMPLICIT_TRAPS=1
+else()
+	SET(EMSCRIPTEN_BASE_OPTIONS "--bind -O3 -std=c++17 -s MODULARIZE=1 -s EXPORT_NAME=PHYSX -s ALLOW_MEMORY_GROWTH=1 -s WASM=0 -s SINGLE_FILE=1 -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s DYNAMIC_EXECUTION=0") # -s AGGRESSIVE_VARIABLE_ELIMINATION=1 -s ELIMINATE_DUPLICATE_FUNCTIONS=1 -s LEGACY_VM_SUPPORT=1 -s TOTAL_MEMORY=33554432
+endif()
 
 
 SET(LL_SOURCE_DIR ${PHYSX_SOURCE_DIR}/physxwebbindings/src)
@@ -84,6 +90,7 @@ SET_TARGET_PROPERTIES(PhysXWebBindings PROPERTIES
 )
 
 TARGET_LINK_LIBRARIES(PhysXWebBindings
+	# PUBLIC PhysX PhysXCommon PhysXFoundation PhysXExtensions #PhysXVehicle PhysXCharacterKinematic PhysXCooking 
 	PUBLIC PhysX PhysXCharacterKinematic PhysXCommon PhysXCooking PhysXExtensions PhysXFoundation PhysXVehicle 
 )
 GET_TARGET_PROPERTY(PHYSXFOUNDATION_INCLUDES PhysXFoundation INTERFACE_INCLUDE_DIRECTORIES)
@@ -96,4 +103,8 @@ TARGET_INCLUDE_DIRECTORIES(PhysXWebBindings
 
 add_definitions(-DNDEBUG)
 # name the output library 'physx' as this is really a union of all of js-bound PhysX
-set_target_properties(PhysXWebBindings PROPERTIES OUTPUT_NAME "physx.${CMAKE_BUILD_TYPE}")
+if("${BUILD_WASM}" STREQUAL "1")
+	set_target_properties(PhysXWebBindings PROPERTIES OUTPUT_NAME "physx.${CMAKE_BUILD_TYPE}.wasm")
+else()
+	set_target_properties(PhysXWebBindings PROPERTIES OUTPUT_NAME "physx.${CMAKE_BUILD_TYPE}.asm")
+endif()
