@@ -175,9 +175,12 @@ PxFilterFlags DefaultFilterShader(
 
     // need trigger event?
     const PxU16 needTriggerEvent = (fd0.word3 & DETECT_TRIGGER_EVENT) | (fd1.word3 & DETECT_TRIGGER_EVENT);
-    if (needTriggerEvent) pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_LOST | PxPairFlag::eNOTIFY_TOUCH_PERSISTS;
-
-    return PxFilterFlag::eDEFAULT;
+    if (needTriggerEvent){
+      pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_LOST | PxPairFlag::eNOTIFY_TOUCH_PERSISTS;
+      return PxFilterFlag::eDEFAULT;
+    } else {
+      return PxFilterFlag::eSUPPRESS;
+    }
   }
 
   // simple collision process
