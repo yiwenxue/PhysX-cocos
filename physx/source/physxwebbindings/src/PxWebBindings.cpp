@@ -83,7 +83,11 @@ struct PxQueryFilterCallbackWrapper : public wrapper<PxQueryFilterCallback>
   }
 };
 
+bool gContactPointsNeedClear = false;
 std::vector<PxContactPairPoint> gContactPoints;
+std::vector<PxContactPairPoint> getGContacts() {
+  return gContactPoints;
+}
 struct PxSimulationEventCallbackWrapper : public wrapper<PxSimulationEventCallback>
 {
   EMSCRIPTEN_WRAPPER(PxSimulationEventCallbackWrapper)
@@ -92,6 +96,10 @@ struct PxSimulationEventCallbackWrapper : public wrapper<PxSimulationEventCallba
   void onSleep(PxActor **, PxU32) {}
   void onContact(const PxContactPairHeader &, const PxContactPair *pairs, PxU32 nbPairs)
   {
+    if (gContactPointsNeedClear) {
+      gContactPoints.clear();
+      gContactPointsNeedClear = false;
+    }
     for (PxU32 i = 0; i < nbPairs; i++)
     {
       const PxContactPair &cp = pairs[i];
@@ -99,23 +107,26 @@ struct PxSimulationEventCallbackWrapper : public wrapper<PxSimulationEventCallba
       if (cp.flags & (PxContactPairFlag::eREMOVED_SHAPE_0 | PxContactPairFlag::eREMOVED_SHAPE_1))
         continue;
 
+      std::vector<PxContactPairPoint> contactVec;
       const PxU8 &contactCount = cp.contactCount;
+      const PxU32 offset = gContactPoints.size();
       if (contactCount) {
-        gContactPoints.resize(contactCount);
-				pairs[i].extractContacts(&gContactPoints[0], contactCount);
+        contactVec.resize(contactCount);
+				pairs[i].extractContacts(&contactVec[0], contactCount);
+        gContactPoints.insert(gContactPoints.cend(), contactVec.cbegin(), contactVec.cend());
       }
 
       if (cp.events & PxPairFlag::eNOTIFY_TOUCH_PERSISTS)
       {
-        call<void>("onContactPersist", cp.shapes[0], cp.shapes[1], contactCount, gContactPoints);
+        call<void>("onContactPersist", cp.shapes[0], cp.shapes[1], contactCount, gContactPoints, offset);
       }
       else if (cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND)
       {
-        call<void>("onContactBegin", cp.shapes[0], cp.shapes[1], contactCount, gContactPoints);
+        call<void>("onContactBegin", cp.shapes[0], cp.shapes[1], contactCount, gContactPoints, offset);
       }
       else if (cp.events & PxPairFlag::eNOTIFY_TOUCH_LOST)
       {
-        call<void>("onContactEnd", cp.shapes[0], cp.shapes[1], contactCount, gContactPoints);
+        call<void>("onContactEnd", cp.shapes[0], cp.shapes[1], contactCount, gContactPoints, offset);
       }
     }
   }
@@ -164,9 +175,6 @@ PxFilterFlags DefaultFilterShader(
   }
   
   pairFlags = PxPairFlags(0);
-  // need detect ccd contact?
-  const PxU16 needDetectCCD = (fd0.word3 & DETECT_CONTACT_CCD) | (fd1.word3 & DETECT_CONTACT_CCD);
-  if (needDetectCCD) pairFlags |= PxPairFlag::eDETECT_CCD_CONTACT;
 
   // trigger filter
   if (PxFilterObjectIsTrigger(attributes0) || PxFilterObjectIsTrigger(attributes1))
@@ -176,12 +184,16 @@ PxFilterFlags DefaultFilterShader(
     // need trigger event?
     const PxU16 needTriggerEvent = (fd0.word3 & DETECT_TRIGGER_EVENT) | (fd1.word3 & DETECT_TRIGGER_EVENT);
     if (needTriggerEvent){
-      pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_LOST | PxPairFlag::eNOTIFY_TOUCH_PERSISTS;
+      pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_LOST;
       return PxFilterFlag::eDEFAULT;
     } else {
       return PxFilterFlag::eSUPPRESS;
     }
   }
+
+  // need detect ccd contact?
+  const PxU16 needDetectCCD = (fd0.word3 & DETECT_CONTACT_CCD) | (fd1.word3 & DETECT_CONTACT_CCD);
+  if (needDetectCCD) pairFlags |= PxPairFlag::eDETECT_CCD_CONTACT;
 
   // simple collision process
   pairFlags |= PxPairFlag::eCONTACT_DEFAULT;
@@ -311,6 +323,7 @@ EMSCRIPTEN_BINDINGS(physx)
   function("PxCreateCooking", &PxCreateCooking, allow_raw_pointers());
   function("PxCreatePlane", &PxCreatePlane, allow_raw_pointers());
   function("getDefaultSceneDesc", &getDefaultSceneDesc, allow_raw_pointers());
+  function("getGContacts", &getGContacts, allow_raw_pointers());
 
   class_<PxSimulationEventCallback>("PxSimulationEventCallback")
       .allow_subclass<PxSimulationEventCallbackWrapper>("PxSimulationEventCallbackWrapper");
@@ -454,6 +467,7 @@ EMSCRIPTEN_BINDINGS(physx)
       .function("setVisualizationCullingBox", &PxScene::setVisualizationCullingBox)
       .function("simulate", optional_override(
                                 [](PxScene &scene, PxReal elapsedTime, bool controlSimulation) {
+                                  gContactPointsNeedClear = true;
                                   scene.simulate(elapsedTime, NULL, 0, 0, controlSimulation);
                                   return;
                                 }))
