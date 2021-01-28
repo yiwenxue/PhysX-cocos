@@ -1,4 +1,8 @@
 /physx/compiler
 /physx/bin/emscripten
+/physx/bin/
+/physx/install
 /kaplademo/bin
+/kaplademo/source/compiler
 /kaplademo/externals/glew-1.13.0
+*.clang-tidy
