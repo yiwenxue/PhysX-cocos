@@ -414,6 +414,9 @@ EMSCRIPTEN_BINDINGS(physx)
       .field("x", &PxExtendedVec3::x)
       .field("y", &PxExtendedVec3::y)
       .field("z", &PxExtendedVec3::z);
+  value_object<PxBounds3>("PxBounds3")
+      .field("minimum", &PxBounds3::minimum)
+      .field("maximum", &PxBounds3::maximum);
 
   class_<PxContactPairPoint>("PxContactPairPoint")
       .property("normal", &PxContactPairPoint::normal)
@@ -599,6 +602,10 @@ EMSCRIPTEN_BINDINGS(physx)
       .function("setMaterials", optional_override(
                                     [](PxShape &shape, std::vector<PxMaterial *> materials) {
                                       return shape.setMaterials(materials.data(), materials.size());
+                                    }))
+      .function("getWorldBounds", optional_override(
+                                    [](PxShape &shape, PxRigidActor& actor, float i) {
+                                      return PxShapeExt::getWorldBounds(shape, actor, i);
                                     }));
 
   class_<PxPhysics>("PxPhysics")
