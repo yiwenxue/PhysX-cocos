@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "bitset": "cpp",
+        "chrono": "cpp",
+        "xhash": "cpp",
+        "xtree": "cpp",
+        "map": "cpp",
+        "set": "cpp",
+        "unordered_map": "cpp",
+        "vector": "cpp"
+    }
+}

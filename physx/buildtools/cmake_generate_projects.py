@@ -242,9 +242,10 @@ class CMakePreset:
         elif self.targetPlatform == 'android':
             outString = outString + ' -DTARGET_BUILD_PLATFORM=android'
             outString = outString + ' -DCMAKE_TOOLCHAIN_FILE=' + \
-                os.environ['PM_CMakeModules_PATH'] + \
-                '/android/android.toolchain.cmake'
-            outString = outString + ' -DANDROID_STL=\"gnustl_static\"'
+                os.environ['PM_AndroidNDK_PATH'] + '\\build\\cmake\\android.toolchain.cmake'
+                # os.environ['PM_CMakeModules_PATH'] + \
+                # '/android/android.toolchain.cmake'
+            # outString = outString + ' -DANDROID_STL=\"gnustl_static\"'
             outString = outString + ' -DCM_ANDROID_FP=\"softfp\"'
             if os.environ.get('PM_AndroidNDK_PATH') is None:
                 print('Please provide path to android NDK in variable PM_AndroidNDK_PATH.')
@@ -253,7 +254,7 @@ class CMakePreset:
                 outString = outString + ' -DANDROID_NDK=' + \
                     os.environ['PM_AndroidNDK_PATH']
                 outString = outString + ' -DCMAKE_MAKE_PROGRAM=\"' + \
-                    os.environ['PM_AndroidNDK_PATH'] + '\\prebuilt\\windows\\bin\\make.exe\"'
+                    os.environ['PM_AndroidNDK_PATH'] + '\\prebuilt\\windows-x86_64\\bin\\make.exe\"'
             return outString
         elif self.targetPlatform == 'linux':
             outString = outString + ' -DTARGET_BUILD_PLATFORM=linux'
@@ -343,7 +344,7 @@ def presetProvided(pName):
     cmakeParams = cmakeParams + ' ' + getCommonParams()
     cmakeParams = cmakeParams + ' ' + parsedPreset.getCMakeSwitches()
     cmakeParams = cmakeParams + ' ' + parsedPreset.getCMakeParams()
-    # print(cmakeParams)
+    print(cmakeParams)
 
     if os.path.isfile(os.environ['PHYSX_ROOT_DIR'] + '/compiler/internal/CMakeLists.txt'):
         cmakeMasterDir = 'internal'

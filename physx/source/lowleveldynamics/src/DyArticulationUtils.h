@@ -163,7 +163,9 @@ struct FsData
 	PxU8				parent[DY_ARTICULATION_MAX_SIZE];											//128
 };
 
+#if !PX_ANDROID || !PX_X86
 PX_COMPILE_TIME_ASSERT(0 == (sizeof(FsData) & 0x0f));
+#endif
 
 #define SOLVER_BODY_SOLVER_PROGRESS_OFFSET 28	
 #define SOLVER_BODY_MAX_SOLVER_PROGRESS_OFFSET 12

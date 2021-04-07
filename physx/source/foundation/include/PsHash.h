@@ -66,11 +66,13 @@ PX_FORCE_INLINE uint32_t hash(const uint32_t key)
 	return uint32_t(k);
 }
 
+#if PX_EMSCRIPTEN
 // size_t in emscripten is an unsigned long
 PX_FORCE_INLINE uint32_t hash(const unsigned long key)
 {
 	return hash(uint32_t(key));
 }
+#endif
 
 PX_FORCE_INLINE uint32_t hash(const int32_t key)
 {
