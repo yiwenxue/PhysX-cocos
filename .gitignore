@@ -6,3 +6,4 @@
 /kaplademo/source/compiler
 /kaplademo/externals/glew-1.13.0
 *.clang-tidy
+.cache
