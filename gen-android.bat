@@ -1,6 +1,6 @@
 @echo off
 setlocal enabledelayedexpansion
-set default_value=E:\Components\Android-sdk\ndk\17.2.4988734
+set default_value=F:\INCLUDE\AndroidSDK\ndk\17.2.4988734
 ::格式化括号
 set "default_value=%default_value:(=^(%"
 set "default_value=%default_value:)=^)%"
