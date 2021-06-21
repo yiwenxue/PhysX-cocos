@@ -461,6 +461,7 @@ EMSCRIPTEN_BINDINGS(physx)
       .value("eENABLE_FRICTION_EVERY_ITERATION", PxSceneFlag::Enum::eENABLE_FRICTION_EVERY_ITERATION);
 
   class_<PxScene>("PxScene")
+      .function("release", &PxScene::release);
       .function("setGravity", &PxScene::setGravity)
       .function("getGravity", &PxScene::getGravity)
       .function("addActor", &PxScene::addActor, allow_raw_pointers())
