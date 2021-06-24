@@ -333,7 +333,7 @@ def presetProvided(pName):
 
     if os.environ.get('PM_cmake_PATH') is not None:
         cmakeExec = os.environ['PM_cmake_PATH'] + '/bin/cmake' + cmakeExt()
-    elif pName == "emscripten":
+    elif parsedPreset.targetPlatform == "emscripten":
         cmakeExec = 'emcmake cmake' + cmakeExt()
     else:
         cmakeExec = 'cmake' + cmakeExt()

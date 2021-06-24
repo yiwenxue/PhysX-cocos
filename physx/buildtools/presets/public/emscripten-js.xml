@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<preset name="emscripten" comment="Emscripten js web build PhysX SDK general settings">
+<preset name="emscripten-js" comment="Emscripten js web build PhysX SDK general settings">
   <platform targetPlatform="emscripten" compiler="emscripten" />
   <CMakeSwitches>
     <cmakeSwitch name="PX_BUILDSNIPPETS" value="False" comment="Generate the snippets" />
@@ -8,6 +8,6 @@
     <cmakeSwitch name="BUILD_WASM" value="False" comment="Generate static libs" />
   </CMakeSwitches>
   <CMakeParams>
-    <cmakeParam name="CMAKE_INSTALL_PREFIX" value="install/emscripten/PhysX" comment="Install path relative to PhysX SDK root" />
+    <cmakeParam name="CMAKE_INSTALL_PREFIX" value="install/emscripten-js/PhysX" comment="Install path relative to PhysX SDK root" />
   </CMakeParams>
 </preset>
