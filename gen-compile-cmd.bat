@@ -12,5 +12,5 @@ if "%1"=="" (
 set PM_AndroidNDK_PATH=%prestr%
 echo %PM_AndroidNDK_PATH%
 
-call .\physx\generate_projects.bat android
+call .\physx\generate_projects.bat emscripten
 copy .\physx\compiler\android-debug\compile_commands.json .\
