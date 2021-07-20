@@ -1,6 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
-set default_value=F:\INCLUDE\AndroidSDK\ndk\17.2.4988734
+@REM set default_value=F:\INCLUDE\AndroidSDK\ndk\17.2.4988734
+set default_value=E:\physics\emscripten-core\emsdk-windows\upstream\emscripten
 ::格式化括号
 set "default_value=%default_value:(=^(%"
 set "default_value=%default_value:)=^)%"
@@ -9,8 +10,10 @@ if "%1"=="" (
 ) else ( 
 	set prestr=%1
 )
-set PM_AndroidNDK_PATH=%prestr%
-echo %PM_AndroidNDK_PATH%
+@REM set PM_AndroidNDK_PATH=%prestr%
+@REM echo %PM_AndroidNDK_PATH%
+
+set EMSCRIPTEN=%prestr%
 
 call .\physx\generate_projects.bat emscripten
-copy .\physx\compiler\android-debug\compile_commands.json .\
+copy .\physx\compiler\emscripten-debug\compile_commands.json .\
