@@ -17,6 +17,8 @@
 using namespace physx;
 using namespace emscripten;
 
+#define __LIB_VERSION__ 100
+
 struct PxRaycastCallbackWrapper : public wrapper<PxRaycastCallback>
 {
   EMSCRIPTEN_WRAPPER(PxRaycastCallbackWrapper)
@@ -308,6 +310,7 @@ EMSCRIPTEN_BINDINGS(physx)
 {
 
   constant("PX_PHYSICS_VERSION", PX_PHYSICS_VERSION);
+  constant("LIB_VERSION", __LIB_VERSION__);
 
   // Global functions
   // These are generaly system/scene level initialization
