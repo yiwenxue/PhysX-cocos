@@ -1,0 +1,25 @@
+{
+  "name": "@cocos/physx",
+  "version": "1.0.8",
+  "main": "builds/physx.release.asm.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postpublish": "cnpm sync @cocos/physx"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cocos-creator/PhysX.git"
+  },
+  "keywords": [
+    "cocos",
+    "creator",
+    "physx",
+    "physics"
+  ],
+  "author": "jiaxin, Ash Connell <hello@ashconnell.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cocos-creator/PhysX/issues"
+  },
+  "homepage": "https://github.com/cocos-creator/PhysX#readme"
+}

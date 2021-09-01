@@ -1,0 +1,15 @@
+.cache
+.vscode
+.gitignore
+node_modules
+externals
+kaplademo
+physx
+pxshared
+*.sh
+*.bat
+compile_commands.json
+
+builds/physx.checked.*
+builds/physx.profile.*
+builds/physx.debug.*
