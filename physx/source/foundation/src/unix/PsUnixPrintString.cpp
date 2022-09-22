@@ -30,7 +30,7 @@
 #include "PsString.h"
 #include <stdio.h>
 
-#if PX_ANDROID
+#if PX_ANDROID && (!PX_OPENHARMONY)
 #include <android/log.h>
 #endif
 
@@ -41,7 +41,7 @@ namespace shdfnd
 
 void printString(const char* str)
 {
-#if PX_ANDROID
+#if PX_ANDROID && (!PX_OPENHARMONY)
 	__android_log_print(ANDROID_LOG_INFO, "PsPrintString", "%s", str);
 #else
 	puts(str);
