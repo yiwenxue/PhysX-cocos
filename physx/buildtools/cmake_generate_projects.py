@@ -20,7 +20,7 @@ def cmakeExt():
 
 
 def filterPreset(presetName):
-    winPresetFilter = ['win','uwp','ps4','switch','xboxone','android','crosscompile', 'emscripten']
+    winPresetFilter = ['win','uwp','ps4','switch','xboxone','android','crosscompile', 'emscripten', 'openharmony']
     if sys.platform == 'win32':        
         if any(presetName.find(elem) != -1 for elem in winPresetFilter):
             return True
@@ -120,6 +120,8 @@ class CMakePreset:
             return False
         elif self.targetPlatform == 'android':
             return False
+        elif self.targetPlatform == 'openharmony':
+            return False
         if self.targetPlatform == 'emscripten':
             return False
         return True
@@ -157,6 +159,8 @@ class CMakePreset:
             outString = outString + '-G \"Visual Studio 16 2019\"'
         elif self.compiler == 'xcode':
             outString = outString + '-G Xcode'
+        elif self.targetPlatform == 'openharmony':
+            outString = outString + '-G \"Ninja\"'
         elif self.targetPlatform == 'android':
             outString = outString + '-G \"MinGW Makefiles\"'
         elif self.targetPlatform == 'linux':
@@ -255,6 +259,20 @@ class CMakePreset:
                     os.environ['PM_AndroidNDK_PATH']
                 outString = outString + ' -DCMAKE_MAKE_PROGRAM=\"' + \
                     os.environ['PM_AndroidNDK_PATH'] + '\\prebuilt\\windows-x86_64\\bin\\make.exe\"'
+            return outString
+        elif self.targetPlatform == 'openharmony':
+            outString = outString + ' -DTARGET_BUILD_PLATFORM=openharmony'
+            outString = outString + ' -DCMAKE_TOOLCHAIN_FILE=' + \
+                os.environ['PM_OpenHarmonyNDK_PATH'] + '\\build\\cmake\\ohos.toolchain.cmake'
+            outString = outString + ' -DCM_ANDROID_FP=\"softfp\"'
+            if os.environ.get('PM_OpenHarmonyNDK_PATH') is None:
+                print('Please provide path to OpenHarmony NDK in variable PM_OpenHarmonyNDK_PATH. like  : E:\\work\\harmonyos_data\\ohos_sdk\\native\\3.2.5.5')
+                exit(-1)
+            else:
+                outString = outString + ' -DANDROID_NDK=' + \
+                    os.environ['PM_OpenHarmonyNDK_PATH']
+                outString = outString + ' -DCMAKE_MAKE_PROGRAM=\"' + \
+                    os.environ['PM_OpenHarmonyNDK_PATH'] + '\\build-tools\\cmake\\bin\\ninja.exe\"'
             return outString
         elif self.targetPlatform == 'linux':
             outString = outString + ' -DTARGET_BUILD_PLATFORM=linux'

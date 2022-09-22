@@ -36,7 +36,7 @@
 #include "PsThread.h"
 
 #include <math.h>
-#if !PX_APPLE_FAMILY && !defined(ANDROID) && !defined(__CYGWIN__) && !PX_PS4 && !PX_EMSCRIPTEN
+#if !PX_APPLE_FAMILY && !defined(ANDROID) && !defined(__CYGWIN__) && !PX_PS4 && !PX_EMSCRIPTEN && !PX_OPENHARMONY
 #include <bits/local_lim.h> // PTHREAD_STACK_MIN
 #endif
 #include <stdio.h>
@@ -273,7 +273,13 @@ void ThreadImpl::kill()
 {
 #ifndef ANDROID
 	if(getThread(this)->state == _PxThreadStarted)
+	{
+		#if PX_OPENHARMONY
+		pthread_kill(getThread(this)->thread, 0);
+		#else
 		pthread_cancel(getThread(this)->thread);
+		#endif
+	}
 	getThread(this)->state = _PxThreadStopped;
 #else
 	shdfnd::getFoundation().error(PxErrorCode::eDEBUG_WARNING, __FILE__, __LINE__,
