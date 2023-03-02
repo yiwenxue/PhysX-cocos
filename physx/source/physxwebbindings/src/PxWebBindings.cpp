@@ -14,7 +14,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-
 using namespace physx;
 using namespace emscripten;
 
@@ -351,6 +350,44 @@ EMSCRIPTEN_BINDINGS(physx) {
            allow_raw_pointers());
   function("PxD6JointCreate", &PxD6JointCreate, allow_raw_pointers());
 
+  enum_<PxConstraintFlag::Enum>("PxConstraintFlag")
+      .value("eBROKEN", PxConstraintFlag::Enum::eBROKEN)
+      .value("eCOLLISION_ENABLED", PxConstraintFlag::Enum::eCOLLISION_ENABLED)
+      .value("ePROJECTION", PxConstraintFlag::ePROJECTION);
+
+  class_<PxSpring>("PxSpring")
+      .property("stiffness", &PxSpring::stiffness)
+      .property("damping", &PxSpring::damping);
+
+  class_<PxJointLimitParameters>("PxJointLimitParameters")
+      .property("restitution", &PxJointLimitParameters::restitution)
+      .property("damping", &PxJointLimitParameters::damping)
+      .property("stiffness", &PxJointLimitParameters::restitution)
+      .property("bounceThreshold", &PxJointLimitParameters::bounceThreshold)
+      .property("contactDistance", &PxJointLimitParameters::contactDistance)
+      .function("isValid", &PxJointLimitParameters::isValid)
+      .function("isSoft", &PxJointLimitParameters::isSoft);
+
+  class_<PxJointLimitCone, base<PxJointLimitParameters>>("PxJointLimitCone")
+      .constructor<PxReal, PxReal>()
+      .constructor<PxReal, PxReal, PxReal>()
+      .property("yAngle", &PxJointLimitCone::yAngle)
+      .property("zAngle", &PxJointLimitCone::zAngle);
+
+  class_<PxJointLinearLimitPair, base<PxJointLimitParameters>>(
+      "PxJointLinearLimitPair")
+      .constructor<const PxTolerancesScale &, PxReal, PxReal>()
+      .constructor<const PxTolerancesScale &, PxReal, PxReal, PxReal>()
+      .property("upper", &PxJointLinearLimitPair::lower)
+      .property("lower", &PxJointLinearLimitPair::upper);
+
+  class_<PxJointAngularLimitPair, base<PxJointLimitParameters>>(
+      "PxJointAngularLimitPair")
+      .constructor<PxReal, PxReal>()
+      .constructor<PxReal, PxReal, PxReal>()
+      .property("upper", &PxJointAngularLimitPair::upper)
+      .property("lower", &PxJointAngularLimitPair::lower);
+
   class_<PxJoint>("PxJoint")
       .function("setActors", &PxJoint::setActors, allow_raw_pointers())
       .function("setLocalPose", optional_override([](PxJoint &joint, PxU8 index,
@@ -371,8 +408,8 @@ EMSCRIPTEN_BINDINGS(physx) {
   class_<PxRevoluteJoint, base<PxJoint>>("PxRevoluteJoint")
       .function("getAngle", &PxRevoluteJoint::getAngle)
       .function("getVelocity", &PxRevoluteJoint::getVelocity)
-      // .function("setLimit", &PxRevoluteJoint::setLimit)
-      // .function("getLimit", &PxRevoluteJoint::getLimit)
+      .function("setLimit", &PxRevoluteJoint::setLimit)
+      .function("getLimit", &PxRevoluteJoint::getLimit)
       .function("setDriveVelocity", &PxRevoluteJoint::setDriveVelocity)
       .function("getDriveVelocity", &PxRevoluteJoint::getDriveVelocity)
       .function("setDriveForceLimit", &PxRevoluteJoint::setDriveForceLimit)
@@ -418,7 +455,56 @@ EMSCRIPTEN_BINDINGS(physx) {
                   joint.setDistanceJointFlags(PxDistanceJointFlags(flags));
                 }));
   class_<PxPrismaticJoint, base<PxJoint>>("PxPrismaticJoint");
-  class_<PxD6Joint, base<PxJoint>>("PxD6Joint");
+
+  enum_<PxD6Axis::Enum>("PxD6Axis")
+      .value("eX", PxD6Axis::Enum::eX)
+      .value("eY", PxD6Axis::Enum::eY)
+      .value("eZ", PxD6Axis::Enum::eZ)
+      .value("eTWIST", PxD6Axis::Enum::eTWIST)
+      .value("eSWING1", PxD6Axis::Enum::eSWING1)
+      .value("eSWING2", PxD6Axis::Enum::eSWING2);
+
+  enum_<PxD6Motion::Enum>("PxD6Motion")
+      .value("eLOCKED", PxD6Motion::Enum::eLOCKED)
+      .value("eLIMITED", PxD6Motion::Enum::eLIMITED)
+      .value("eFREE", PxD6Motion::Enum::eFREE);
+
+  class_<PxD6JointDrive, base<PxSpring>>("PxD6JointDrive")
+      .constructor<>()
+      .constructor<PxReal, PxReal, PxReal, bool>()
+      .property("forceLimit", &PxD6JointDrive::forceLimit)
+      .function("setAccelerationFlag",
+                optional_override([](PxD6JointDrive &drive, bool enabled) {
+                  if (enabled) {
+                    drive.flags.set(PxD6JointDriveFlag::Enum::eACCELERATION);
+                  } else {
+                    drive.flags.clear(PxD6JointDriveFlag::Enum::eACCELERATION);
+                  }
+                }));
+  enum_<PxD6Drive::Enum>("PxD6Drive")
+      .value("eX", PxD6Drive::Enum::eX)
+      .value("eY", PxD6Drive::Enum::eY)
+      .value("eZ", PxD6Drive::Enum::eZ)
+      .value("eSWING", PxD6Drive::Enum::eSWING)
+      .value("eTWIST", PxD6Drive::Enum::eTWIST)
+      .value("eSLERP", PxD6Drive::Enum::eSLERP);
+
+  class_<PxD6Joint, base<PxJoint>>("PxD6Joint")
+      .function("setMotion", &PxD6Joint::setMotion)
+      .function("getMotion", &PxD6Joint::getMotion)
+      .function(
+          "setLinearLimit",
+          select_overload<void(PxD6Axis::Enum, const PxJointLinearLimitPair &)>(
+              &PxD6Joint::setLinearLimit))
+      .function("setTwistLimit", &PxD6Joint::setTwistLimit)
+      .function("setSwingLimit", &PxD6Joint::setSwingLimit)
+      .function("setDrive", &PxD6Joint::setDrive)
+      .function("setDrivePosition",
+                select_overload<void(const PxTransform &, bool)>(
+                    &PxD6Joint::setDrivePosition))
+      .function("setDriveVelocity",
+                select_overload<void(const PxVec3 &, const PxVec3 &, bool)>(
+                    &PxD6Joint::setDriveVelocity));
 
   class_<PxAllocatorCallback>("PxAllocatorCallback");
   class_<PxDefaultAllocator, base<PxAllocatorCallback>>("PxDefaultAllocator")
