@@ -154,6 +154,7 @@ public:
 		return damping>0 || stiffness>0;
 	}
 
+protected:
 	~PxJointLimitParameters() {}
 };
 

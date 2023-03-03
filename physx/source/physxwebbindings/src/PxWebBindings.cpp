@@ -1304,6 +1304,8 @@ void raw_destructor<PxRigidStatic>(PxRigidStatic *) { /* do nothing */
 }
 template <> void raw_destructor<PxJoint>(PxJoint *) { /* do nothing */
 }
+template <> void raw_destructor<PxJointLimitParameters>(PxJointLimitParameters *) { /* do nothing */
+}
 template <>
 void raw_destructor<PxPvdSceneClient>(PxPvdSceneClient *) { /* do nothing */
 }
