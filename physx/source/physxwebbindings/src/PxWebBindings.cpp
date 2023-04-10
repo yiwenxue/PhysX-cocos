@@ -1154,6 +1154,14 @@ EMSCRIPTEN_BINDINGS(physx) {
       .function("getContactOffset", &PxController::getContactOffset)
       .function("setSlopeLimit", &PxController::setSlopeLimit)
       .function("getSlopeLimit", &PxController::getSlopeLimit)
+      .function("setCollision", optional_override(
+          [](PxController &ctrl, bool enable) {
+            PxRigidDynamic* actor = ctrl.getActor();
+            PxShape* shape;
+            actor->getShapes(&shape, 1);
+            shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, enable);
+            return;
+          }))
       .function("setSimulationFilterData", optional_override(
           [](PxController &ctrl, PxFilterData &data) {
             PxRigidDynamic* actor = ctrl.getActor();
