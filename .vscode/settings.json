@@ -8,5 +8,6 @@
         "set": "cpp",
         "unordered_map": "cpp",
         "vector": "cpp"
-    }
+    },
+    "cmake.sourceDirectory": "${workspaceFolder}/emsdk/upstream/emscripten/system/lib/libcxxabi/src"
 }

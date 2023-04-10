@@ -481,6 +481,7 @@ EMSCRIPTEN_BINDINGS(physx) {
                     drive.flags.clear(PxD6JointDriveFlag::Enum::eACCELERATION);
                   }
                 }));
+
   enum_<PxD6Drive::Enum>("PxD6Drive")
       .value("eX", PxD6Drive::Enum::eX)
       .value("eY", PxD6Drive::Enum::eY)
@@ -509,9 +510,11 @@ EMSCRIPTEN_BINDINGS(physx) {
   class_<PxAllocatorCallback>("PxAllocatorCallback");
   class_<PxDefaultAllocator, base<PxAllocatorCallback>>("PxDefaultAllocator")
       .constructor<>();
+
   class_<PxTolerancesScale>("PxTolerancesScale")
       .constructor<>()
-      .property("speed", &PxTolerancesScale::speed);
+      .property("speed", &PxTolerancesScale::speed)
+      .property("length", &PxTolerancesScale::length);
 
   // Define PxVec3, PxQuat and PxTransform as value objects to allow sumerian
   // Vector3 and Quaternion to be used directly without the need to free the
@@ -1234,7 +1237,7 @@ EMSCRIPTEN_BINDINGS(physx) {
   //     &PxControllerDesc::volumeGrowth) .property("nonWalkableMode",
   //     &PxControllerDesc::nonWalkableMode)
   //     // `material` property doesn't work as-is so we create a setMaterial
-  //     function .function("setMaterial", optional_override(
+  //     function .function("setMaterial", oemscptional_override(
   //         [](PxControllerDesc &desc, PxMaterial* material) {
   //             return desc.material = material;
   //         }), allow_raw_pointers());
@@ -1304,7 +1307,9 @@ void raw_destructor<PxRigidStatic>(PxRigidStatic *) { /* do nothing */
 }
 template <> void raw_destructor<PxJoint>(PxJoint *) { /* do nothing */
 }
-template <> void raw_destructor<PxJointLimitParameters>(PxJointLimitParameters *) { /* do nothing */
+template <>
+void raw_destructor<PxJointLimitParameters>(
+    PxJointLimitParameters *) { /* do nothing */
 }
 template <>
 void raw_destructor<PxPvdSceneClient>(PxPvdSceneClient *) { /* do nothing */
