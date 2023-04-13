@@ -362,7 +362,7 @@ EMSCRIPTEN_BINDINGS(physx) {
   class_<PxJointLimitParameters>("PxJointLimitParameters")
       .property("restitution", &PxJointLimitParameters::restitution)
       .property("damping", &PxJointLimitParameters::damping)
-      .property("stiffness", &PxJointLimitParameters::restitution)
+      .property("stiffness", &PxJointLimitParameters::stiffness)
       .property("bounceThreshold", &PxJointLimitParameters::bounceThreshold)
       .property("contactDistance", &PxJointLimitParameters::contactDistance)
       .function("isValid", &PxJointLimitParameters::isValid)
@@ -378,8 +378,8 @@ EMSCRIPTEN_BINDINGS(physx) {
       "PxJointLinearLimitPair")
       .constructor<const PxTolerancesScale &, PxReal, PxReal>()
       .constructor<const PxTolerancesScale &, PxReal, PxReal, PxReal>()
-      .property("upper", &PxJointLinearLimitPair::lower)
-      .property("lower", &PxJointLinearLimitPair::upper);
+      .property("upper", &PxJointLinearLimitPair::upper)
+      .property("lower", &PxJointLinearLimitPair::lower);
 
   class_<PxJointAngularLimitPair, base<PxJointLimitParameters>>(
       "PxJointAngularLimitPair")
