@@ -309,6 +309,30 @@ PxHeightField *createHeightFieldExt(PxU32 numCols, PxU32 numRows,
   return heightField;
 }
 
+struct PxPvdTransportWrapper : public wrapper<PxPvdTransport> {
+  EMSCRIPTEN_WRAPPER(PxPvdTransportWrapper)
+
+  void unlock() override {}
+
+  void flush() override {}
+
+  void release() override {}
+
+  PxPvdTransport &lock() override { return *this; }
+
+  uint64_t getWrittenDataSize() override { return 0; }
+
+  bool connect() override { return call<bool>("connect"); }
+
+  void disconnect() override { call<void>("disconnect"); }
+
+  bool isConnected() override { return call<bool>("isConnected"); }
+
+  bool write(const uint8_t *inBytes, uint32_t inLength) override {
+    return call<bool>("write", int(inBytes), int(inLength));
+  }
+};
+
 EMSCRIPTEN_BINDINGS(physx) {
 
   constant("PX_PHYSICS_VERSION", PX_PHYSICS_VERSION);
@@ -321,6 +345,7 @@ EMSCRIPTEN_BINDINGS(physx) {
   function("PxDefaultCpuDispatcherCreate", &PxDefaultCpuDispatcherCreate,
            allow_raw_pointers());
   function("PxCreatePvd", &PxCreatePvd, allow_raw_pointers());
+
   function("PxCreateBasePhysics", &PxCreateBasePhysics, allow_raw_pointers());
   function("PxCreatePhysics", &PxCreatePhysics, allow_raw_pointers());
   function("PxRegisterArticulations", &PxRegisterArticulations,
@@ -505,7 +530,11 @@ EMSCRIPTEN_BINDINGS(physx) {
                     &PxD6Joint::setDrivePosition))
       .function("setDriveVelocity",
                 select_overload<void(const PxVec3 &, const PxVec3 &, bool)>(
-                    &PxD6Joint::setDriveVelocity));
+                    &PxD6Joint::setDriveVelocity))
+      .function("setProjectionLinearTolerance",
+                &PxD6Joint::setProjectionLinearTolerance)
+      .function("setProjectionAngularTolerance",
+                &PxD6Joint::setProjectionAngularTolerance);
 
   class_<PxAllocatorCallback>("PxAllocatorCallback");
   class_<PxDefaultAllocator, base<PxAllocatorCallback>>("PxDefaultAllocator")
@@ -549,6 +578,8 @@ EMSCRIPTEN_BINDINGS(physx) {
 
   enum_<PxIDENTITY>("PxIDENTITY").value("PxIdentity", PxIDENTITY::PxIdentity);
 
+  class_<PxPvdInstrumentationFlags>("PxPvdInstrumentationFlags")
+      .constructor<int>();
   enum_<PxPvdInstrumentationFlag::Enum>("PxPvdInstrumentationFlag")
       .value("eALL", PxPvdInstrumentationFlag::Enum::eALL)
       .value("eDEBUG", PxPvdInstrumentationFlag::Enum::eDEBUG)
@@ -815,7 +846,11 @@ EMSCRIPTEN_BINDINGS(physx) {
       .function("createRigidStatic", &PxPhysics::createRigidStatic,
                 allow_raw_pointers());
 
-  class_<PxPvd>("PxPvd");
+  class_<PxPvd>("PxPvd").function("connect", &PxPvd::connect);
+
+  class_<PxPvdTransport>("PxPvdTransport")
+      .allow_subclass<PxPvdTransportWrapper>("PxPvdTransportWrapper",
+                                             constructor<>());
 
   class_<PxShapeFlags>("PxShapeFlags")
       .constructor<int>()
