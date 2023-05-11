@@ -696,7 +696,37 @@ EMSCRIPTEN_BINDINGS(physx) {
                           filterCall, cache);
                     }),
                 allow_raw_pointers())
-      .function("sweep", &PxScene::sweep, allow_raw_pointers());
+      .function("sweepSingle",
+          optional_override([](PxScene &scene, 
+                               const PxGeometry& geometry, const PxTransform& pose,
+                               const PxVec3 &unitDir, const PxReal distance,
+                               PxU16 flags, PxSweepHit &hit,
+                               const PxSceneQueryFilterData &filterData,
+                               PxSceneQueryFilterCallback *filterCall,
+                               const PxSceneQueryCache *cache, PxReal inflation) {
+            bool result = PxSceneQueryExt::sweepSingle(
+                scene, geometry, pose, unitDir, distance, PxHitFlags(flags), hit,
+                filterData, filterCall, cache, inflation);
+            return result;
+          }),
+          allow_raw_pointers())
+      .function("sweepMultiple",
+                optional_override(
+                    [](PxScene &scene,
+                       const PxGeometry& geometry, const PxTransform& pose,
+                       const PxVec3 &unitDir, const PxReal distance,
+                       PxU16 flags, std::vector<PxSweepHit> &hitBuffer,
+                       PxU32 hbsize, const PxSceneQueryFilterData &filterData,
+                       PxSceneQueryFilterCallback *filterCall,
+                       const PxSceneQueryCache *cache, PxReal inflation) {
+                      bool hitBlock = false;
+                      return PxSceneQueryExt::sweepMultiple(
+                          scene, geometry, pose, unitDir, distance, PxHitFlags(flags),
+                          hitBuffer.data(), hbsize, hitBlock, filterData,
+                          filterCall, cache, inflation);
+                    }),
+                allow_raw_pointers())
+      ;
 
   class_<PxQueryHit>("PxQueryHit")
       .function("getShape", optional_override([](PxQueryHit &block) {
@@ -727,6 +757,8 @@ EMSCRIPTEN_BINDINGS(physx) {
            allow_raw_pointers());
 
   class_<PxSweepHit, base<PxLocationHit>>("PxSweepHit").constructor<>();
+  register_vector<PxSweepHit>("PxSweepHitVector");
+
   class_<PxSweepCallback>("PxSweepCallback")
       .property("block", &PxSweepCallback::block)
       .property("hasBlock", &PxSweepCallback::hasBlock)
@@ -801,6 +833,7 @@ EMSCRIPTEN_BINDINGS(physx) {
   // with embind This is overrided to use std::vector<PxMaterial*>
   class_<PxShape>("PxShape")
       .function("release", &PxShape::release)
+      .function("getReferenceCount", &PxShape::getReferenceCount)
       .function("getFlags", &PxShape::getFlags)
       .function("setFlag", &PxShape::setFlag)
       .function("setLocalPose", &PxShape::setLocalPose)
