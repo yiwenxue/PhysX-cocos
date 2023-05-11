@@ -99,7 +99,8 @@ SET_TARGET_PROPERTIES(PhysXWebBindings PROPERTIES
 )
 
 TARGET_LINK_LIBRARIES(PhysXWebBindings
-	PUBLIC PhysX PhysXCommon PhysXFoundation PhysXExtensions PhysXCooking #PhysXVehicle PhysXCharacterKinematic 
+	PUBLIC PhysX PhysXCommon PhysXFoundation PhysXExtensions PhysXCooking PhysXCharacterKinematic
+	#PUBLIC PhysX PhysXCommon PhysXFoundation PhysXExtensions PhysXCooking #PhysXVehicle PhysXCharacterKinematic 
 	# PUBLIC PhysX PhysXCharacterKinematic PhysXCommon PhysXCooking PhysXExtensions PhysXFoundation PhysXVehicle 
 	# PUBLIC PhysXCharacterKinematic PhysXCooking PhysXExtensions PhysXVehicle
 )
